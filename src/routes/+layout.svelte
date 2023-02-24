@@ -18,7 +18,7 @@
 	});
 </script>
 
-<body class="container px-4 max-w-5xl mx-auto">
+<div class="container px-4 max-w-5xl mx-auto">
 	<Header />
 	<slot />
-</body>
+</div>

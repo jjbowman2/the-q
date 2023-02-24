@@ -1,3 +1,23 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+	@font-face {
+		font-family: 'Inter';
+		src: local('inter'), local('Inter'), url('/fonts/Inter/static/Inter-Regular.ttf');
+		font-weight: normal;
+		font-display: swap;
+	}
+	@font-face {
+		font-family: 'Inter';
+		src: local('Inter Bold'), local('inter bold'), local('Inter bold'),
+			local('inter-bold'), url('/fonts/Inter/static/Inter-Bold.ttf');
+		font-weight: bold;
+		font-display: swap;
+	}
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+}

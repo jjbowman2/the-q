@@ -1,4 +1,5 @@
 <script lang="ts">
+	import LocationLink from '$lib/components/LocationLink.svelte';
 	import type { PageServerData } from './$types';
 	export let data: PageServerData;
 	let { locations } = data;
@@ -12,13 +13,13 @@
 	<p class="text-3xl text-gray-700">
 		Welcome to the <strong class="text-emerald-400">Q</strong>: where picklin' happens!
 	</p>
-	<p class="text-xl mt-4 text-gray-600">The Q is currently offered at the following locations:</p>
-	<ul class="flex flex-col gap-2 my-4 text-gray-600">
-		{#each locations as { id, location_name }}
+	<p class="text-xl mt-4 text-gray-600 text-justify">
+		The Q is currently offered at the following locations:
+	</p>
+	<ul class="flex flex-col gap-4 my-4">
+		{#each locations as location}
 			<li>
-				<a href="/location/{id}" class="text-emerald-600 hover:text-emerald-700">
-					{location_name}
-				</a>
+				<LocationLink {location} />
 			</li>
 		{/each}
 	</ul>

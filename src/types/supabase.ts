@@ -13,51 +13,43 @@ export interface Database {
         Row: {
           court: number | null
           created_at: string
+          created_by: string | null
           id: string
+          players: string[]
         }
         Insert: {
           court?: number | null
           created_at?: string
+          created_by?: string | null
           id?: string
+          players?: string[]
         }
         Update: {
           court?: number | null
           created_at?: string
+          created_by?: string | null
           id?: string
+          players?: string[]
         }
       }
       locations: {
         Row: {
           courts_available: number
           id: string
+          image_url: string | null
           location_name: string
         }
         Insert: {
           courts_available?: number
           id?: string
-          location_name?: string
+          image_url?: string | null
+          location_name: string
         }
         Update: {
           courts_available?: number
           id?: string
+          image_url?: string | null
           location_name?: string
-        }
-      }
-      players: {
-        Row: {
-          game: string
-          id: string
-          player_name: string
-        }
-        Insert: {
-          game: string
-          id?: string
-          player_name?: string
-        }
-        Update: {
-          game?: string
-          id?: string
-          player_name?: string
         }
       }
       reports: {
