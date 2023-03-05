@@ -1,8 +1,8 @@
-import { supabase } from '$lib/supabaseClient';
 import { error } from '@sveltejs/kit';
-import type { PageServerLoad } from './$types';
+import type { PageLoad } from '../../$types';
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageLoad = async ({ params, parent }) => {
+	const { supabase } = await parent();
 	const { data } = await supabase.from('locations').select().eq('id', params.slug);
 	if (!data || data.length === 0) {
 		throw error(404, {

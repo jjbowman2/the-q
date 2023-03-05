@@ -1,7 +1,7 @@
 <script lang="ts">
 	import LocationLink from '$lib/components/LocationLink.svelte';
-	import type { PageServerData } from './$types';
-	export let data: PageServerData;
+	import type { PageData } from './$types';
+	export let data: PageData;
 	let { locations } = data;
 </script>
 
