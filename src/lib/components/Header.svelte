@@ -4,7 +4,10 @@
 	export let data: LayoutData;
 	const { session, supabase } = data;
 	const handleSignIn = () => {
-		supabase.auth.signInWithOAuth({ provider: 'google' });
+		supabase.auth.signInWithOAuth({
+			provider: 'google',
+			options: { redirectTo: window.location.href }
+		});
 	};
 	const handleSignOut = () => {
 		supabase.auth.signOut();
