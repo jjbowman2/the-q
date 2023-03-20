@@ -1,4 +1,4 @@
-<div data-custom-class="body">
+<div data-custom-class="body" class="container px-4 max-w-5xl mx-auto">
 	<div>
 		<strong
 			><span style="font-size: 26px;"

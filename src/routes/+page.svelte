@@ -9,7 +9,7 @@
 	<title>The Q | Home</title>
 	<meta name="description" content="The Q Home Page" />
 </svelte:head>
-<main class="max-w-md mx-auto">
+<main class="max-w-md mx-auto container px-4">
 	<p class="text-3xl text-gray-700">
 		Welcome to the <strong class="text-emerald-400">Q</strong>: where picklin' happens!
 	</p>

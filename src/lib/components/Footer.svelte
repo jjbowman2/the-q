@@ -1,4 +1,4 @@
-<footer class="text-gray-500 py-8">
+<footer class="container px-4 max-w-5xl mx-auto text-gray-500 pb-8">
 	<hr />
 	<nav class="flex mt-8">
 		<a class="hover:underline flex-1 text-center" href="/faqs">FAQs</a>

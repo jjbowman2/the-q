@@ -47,7 +47,7 @@
 	};
 </script>
 
-<header class="h-16 py-4 flex justify-between items-center">
+<header class="container px-4 max-w-5xl mx-auto h-16 py-4 flex justify-between items-center">
 	<a href="/"><img src="/logo.svg" alt="The Q Logo" /></a>
 	{#if session}
 		<span use:clickOutside on:clickoutside={hidePopover}>
@@ -71,8 +71,11 @@
 			</div>
 		</span>
 	{:else}
-		<button type="button" class="text-zinc-500 hover:text-zinc-600" on:click={handleSignIn}
-			>Login</button
+		<button
+			type="button"
+			class="text-zinc-500 hover:text-zinc-600"
+			on:click={handleSignIn}
+			bind:this={signOutButton}>Login</button
 		>
 	{/if}
 </header>

@@ -6,7 +6,7 @@
 	export let data: LayoutData;
 </script>
 
-<div class="container px-4 max-w-5xl mx-auto flex flex-col h-full">
+<div class="flex flex-col h-full">
 	<Header {data} />
 	<div class="flex-grow"><slot /></div>
 	<Footer />
