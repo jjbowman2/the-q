@@ -9,11 +9,11 @@
 {#if open}
 	<div
 		transition:fade={{ duration: 200 }}
-		class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center pt-28 items-start"
+		class="fixed inset-0 bg-black bg-opacity-50 z-50 pt-28 px-4"
 	>
 		<div
 			transition:fly={{ x: 0, y: 50, duration: 200 }}
-			class="bg-white rounded-lg shadow-lg"
+			class="bg-white rounded-lg shadow-lg max-w-lg mx-auto"
 			use:clickOutside
 			on:clickoutside={onClose}
 		>

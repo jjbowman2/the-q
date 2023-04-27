@@ -14,6 +14,10 @@
 	let playerNames = [playerName, '', '', ''];
 </script>
 
+<svelte:head>
+	<title>The Q | {location_name}</title>
+	<meta name="description" content="The Q at {location_name}" />
+</svelte:head>
 <main class="h-full flex flex-col">
 	<div class="container mx-auto max-w-lg px-4 flex justify-between items-end mb-4">
 		<div>
@@ -40,7 +44,7 @@
 			{:else}
 				{#each games as game}
 					<div class="bg-white rounded-lg shadow p-4 m-4">
-						<h2 class="text-xl text-gray-700 mb-4">{game.players}</h2>
+						<h2 class="text-xl text-gray-700 mb-4">{game.players.join(', ')}</h2>
 						<p class="text-gray-600 text-sm">
 							{game.players.length} player{game.players.length != 1 ? 's' : ''} waiting...
 						</p>
@@ -50,7 +54,7 @@
 		</div>
 	</div>
 	<Dialog open={joinDialogOpen} onClose={() => (joinDialogOpen = false)}>
-		<div class="p-4 lg:min-w-[24rem]">
+		<form method="post" action="?/createGame" class="p-4">
 			<h2 class="text-xl text-gray-700 mb-4">Join the Queue</h2>
 			<label for="gameSizeInput" class="block text-gray-700 text-sm font-semibold mb-2"
 				>Number of Players</label
@@ -62,6 +66,7 @@
 						type="checkbox"
 						id="gameSizeInput"
 						bind:checked={fourPlayers}
+						name="isFourPlayers"
 						class="sr-only peer"
 					/>
 					<div
@@ -79,6 +84,7 @@
 						type="text"
 						id="playerNameInput"
 						bind:value={playerNames[playerIndex]}
+						name="player"
 						class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-300"
 					/>
 				</div>
@@ -91,11 +97,11 @@
 					>Cancel</button
 				>
 				<button
-					type="button"
+					type="submit"
 					class="text-emerald-600 text-sm font-semibold hover:text-emerald-800 active:scale-[.98]"
 					>Join</button
 				>
 			</div>
-		</div>
+		</form>
 	</Dialog>
 </main>
