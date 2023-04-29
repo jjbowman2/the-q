@@ -1,6 +1,8 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
 	import Dialog from '$lib/components/Dialog.svelte';
-	import type { PageData } from './$types';
+	import type { ActionData, PageData } from './$types';
+	export let form: ActionData;
 	export let data: PageData;
 	let {
 		location: { location_name },
@@ -48,13 +50,35 @@
 						<p class="text-gray-600 text-sm">
 							{game.players.length} player{game.players.length != 1 ? 's' : ''} waiting...
 						</p>
+						<form method="post" action="?/deleteGame">
+							<input type="hidden" name="game-id" value={game.id} />
+							<button
+								type="submit"
+								class="text-emerald-600 ml-auto block hover:text-emerald-700 active:scale-95"
+								>Start Game</button
+							>
+						</form>
 					</div>
 				{/each}
 			{/if}
 		</div>
 	</div>
 	<Dialog open={joinDialogOpen} onClose={() => (joinDialogOpen = false)}>
-		<form method="post" action="?/createGame" class="p-4">
+		<form
+			class="p-4"
+			method="post"
+			action="?/createGame"
+			use:enhance={() =>
+				async ({ result, update }) => {
+					if (result.type == 'success') {
+						// TODO: get rid of this any
+						games = [...(games ?? []), result?.data?.game];
+						playerNames = [playerName, '', '', ''];
+						joinDialogOpen = false;
+					}
+					await update();
+				}}
+		>
 			<h2 class="text-xl text-gray-700 mb-4">Join the Queue</h2>
 			<label for="gameSizeInput" class="block text-gray-700 text-sm font-semibold mb-2"
 				>Number of Players</label
@@ -89,6 +113,9 @@
 					/>
 				</div>
 			{/each}
+			{#if form?.error}
+				<p class="text-red-500 text-sm mt-4">{form.error}</p>
+			{/if}
 			<div class="flex justify-end gap-6 mt-4">
 				<button
 					type="button"
