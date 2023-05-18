@@ -37,13 +37,13 @@
 						let newGame = payload.new as Game;
 						games = [...(games ?? []), newGame];
 					}
-					if (payload.eventType === 'DELETE') {
-						let deletedGame = payload.old as Game;
-						games = games?.filter((game) => game.id !== deletedGame.id) ?? [];
-					}
 					if (payload.eventType === 'UPDATE') {
 						let updatedGame = payload.new as Game;
 						games = games?.map((game) => (game.id === updatedGame.id ? updatedGame : game)) ?? [];
+					}
+					if (payload.eventType === 'DELETE') {
+						let deletedGame = payload.old as Game;
+						games = games?.filter((game) => game.id !== deletedGame.id) ?? [];
 					}
 				}
 			)
@@ -110,7 +110,6 @@
 			use:enhance={() =>
 				async ({ result, update }) => {
 					if (result.type == 'success') {
-						playerNames = [playerName, '', '', ''];
 						joinDialogOpen = false;
 					}
 					await update();
@@ -147,6 +146,7 @@
 						bind:value={playerNames[playerIndex]}
 						name="player"
 						class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-300"
+						autocomplete="off"
 					/>
 				</div>
 			{/each}
