@@ -1,19 +1,58 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import Dialog from '$lib/components/Dialog.svelte';
+	import type { RealtimeChannel } from '@supabase/supabase-js';
+	import { onDestroy, onMount } from 'svelte';
+	import type { Database } from '../../../types/supabase';
 	import type { ActionData, PageData } from './$types';
+	type Game = Database['public']['Tables']['games']['Row'];
 	export let form: ActionData;
 	export let data: PageData;
 	let {
-		location: { location_name },
+		location: { location_name, id: location_id },
 		games,
-		user
+		user,
+		supabase
 	} = data;
+
 	let playerName = user?.user_metadata?.name ?? user?.user_metadata?.full_name ?? '';
 	let joinDialogOpen = false;
 	let fourPlayers = true;
 
 	let playerNames = [playerName, '', '', ''];
+	let supabaseSubscription: RealtimeChannel;
+	onMount(() => {
+		supabaseSubscription = supabase
+			.channel('schema-db-changes')
+			.on(
+				'postgres_changes',
+				{
+					event: '*',
+					schema: 'public',
+					table: 'games',
+					filter: `location=eq.${location_id}`
+				},
+				(payload) => {
+					if (payload.eventType === 'INSERT') {
+						let newGame = payload.new as Game;
+						games = [...(games ?? []), newGame];
+					}
+					if (payload.eventType === 'DELETE') {
+						let deletedGame = payload.old as Game;
+						games = games?.filter((game) => game.id !== deletedGame.id) ?? [];
+					}
+					if (payload.eventType === 'UPDATE') {
+						let updatedGame = payload.new as Game;
+						games = games?.map((game) => (game.id === updatedGame.id ? updatedGame : game)) ?? [];
+					}
+				}
+			)
+			.subscribe();
+	});
+
+	onDestroy(() => {
+		supabaseSubscription?.unsubscribe();
+	});
 </script>
 
 <svelte:head>
@@ -50,7 +89,7 @@
 						<p class="text-gray-600 text-sm">
 							{game.players.length} player{game.players.length != 1 ? 's' : ''} waiting...
 						</p>
-						<form method="post" action="?/deleteGame">
+						<form method="post" action="?/deleteGame" use:enhance>
 							<input type="hidden" name="game-id" value={game.id} />
 							<button
 								type="submit"
@@ -71,8 +110,6 @@
 			use:enhance={() =>
 				async ({ result, update }) => {
 					if (result.type == 'success') {
-						// TODO: get rid of this any
-						games = [...(games ?? []), result?.data?.game];
 						playerNames = [playerName, '', '', ''];
 						joinDialogOpen = false;
 					}
