@@ -5,6 +5,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import type { Database } from '../../../types/supabase';
 	import type { ActionData, PageData } from './$types';
+	import Game from '$lib/components/Game.svelte';
 	type Game = Database['public']['Tables']['games']['Row'];
 	export let form: ActionData;
 	export let data: PageData;
@@ -83,22 +84,25 @@
 					</p>
 				</div>
 			{:else}
-				{#each games as game}
-					<div class="bg-white rounded-lg shadow p-4 m-4">
-						<h2 class="text-xl text-gray-700 mb-4">{game.players.join(', ')}</h2>
-						<p class="text-gray-600 text-sm">
-							{game.players.length} player{game.players.length != 1 ? 's' : ''} waiting...
-						</p>
-						<form method="post" action="?/deleteGame" use:enhance>
+				<div class="bg-white rounded-lg shadow m-4">
+					{#each games as game, index}
+						<!-- If not the first one add a divider -->
+						{#if index > 0}
+							<div class="border-t border-gray-200" />
+						{/if}
+						<!-- <form method="post" action="?/deleteGame" use:enhance>
 							<input type="hidden" name="game-id" value={game.id} />
 							<button
 								type="submit"
 								class="text-emerald-600 ml-auto block hover:text-emerald-700 active:scale-95"
 								>Start Game</button
 							>
-						</form>
-					</div>
-				{/each}
+						</form> -->
+						<div class="px-6 py-8">
+							<Game {game} {index} isCurrentUsersGame={game.created_by == user?.id} />
+						</div>
+					{/each}
+				</div>
 			{/if}
 		</div>
 	</div>
