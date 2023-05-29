@@ -19,6 +19,8 @@ export const actions = {
 			.eq('id', slug)
 			.single();
 
+		const created_by_anon = data.get('created_by_anon')?.toString() ?? null;
+
 		if (!location) {
 			return fail(404, { error: 'Location was not found, please try again.' });
 		}
@@ -35,7 +37,8 @@ export const actions = {
 				game_size: isFourPlayers ? 4 : 2,
 				location: location.id,
 				players,
-				created_by: session?.user?.id
+				created_by: session?.user?.id,
+				created_by_anon
 			})
 			.select()
 			.single();

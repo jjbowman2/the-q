@@ -6,6 +6,7 @@
 	import type { Database } from '../../../types/supabase';
 	import type { ActionData, PageData } from './$types';
 	import Game from '$lib/components/Game.svelte';
+	import { anonymousAuthToken } from '$lib/stores/anonymousAuthStore';
 	type Game = Database['public']['Tables']['games']['Row'];
 	export let form: ActionData;
 	export let data: PageData;
@@ -22,6 +23,7 @@
 
 	let playerNames = [playerName, '', '', ''];
 	let supabaseSubscription: RealtimeChannel;
+	$: console.log($anonymousAuthToken);
 	onMount(() => {
 		supabaseSubscription = supabase
 			.channel('schema-db-changes')
@@ -99,7 +101,12 @@
 							>
 						</form> -->
 						<div class="px-6 py-8">
-							<Game {game} {index} isCurrentUsersGame={game.created_by == user?.id} />
+							<Game
+								{game}
+								{index}
+								isCurrentUsersGame={(game.created_by !== null && game.created_by === user?.id) ||
+									(game.created_by == null && game.created_by_anon === $anonymousAuthToken)}
+							/>
 						</div>
 					{/each}
 				</div>
@@ -119,6 +126,9 @@
 					await update();
 				}}
 		>
+			{#if !user}
+				<input type="hidden" name="created_by_anon" value={$anonymousAuthToken} />
+			{/if}
 			<h2 class="text-xl text-gray-700 mb-4">Join the Queue</h2>
 			<label for="gameSizeInput" class="block text-gray-700 text-sm font-semibold mb-2"
 				>Number of Players</label

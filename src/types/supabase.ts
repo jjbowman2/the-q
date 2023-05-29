@@ -7,6 +7,7 @@ export interface Database {
 				Row: {
 					created_at: string;
 					created_by: string | null;
+					created_by_anon: string | null;
 					id: string;
 					players: string[];
 					location: string;
@@ -15,6 +16,7 @@ export interface Database {
 				Insert: {
 					created_at?: string;
 					created_by?: string | null;
+					created_by_anon?: string | null;
 					id?: string;
 					players?: string[];
 					location: string;
@@ -23,6 +25,7 @@ export interface Database {
 				Update: {
 					created_at?: string;
 					created_by?: string | null;
+					created_by_anon?: string | null;
 					id?: string;
 					players?: string[];
 					location?: string;

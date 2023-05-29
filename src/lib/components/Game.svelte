@@ -32,7 +32,7 @@
 				{/each}
 				{#each Array(game.game_size - game.players.length) as _}
 					<button type="button" class="flex gap-2 items-center group">
-						<p class="text-gray-400 group-hover:text-gray-700">Open</p>
+						<p class="text-gray-400 group-hover:text-gray-700 italic">Open</p>
 						<Pencil class="text-gray-400 w-4 h-4 group-hover:text-gray-700" />
 					</button>
 				{/each}
