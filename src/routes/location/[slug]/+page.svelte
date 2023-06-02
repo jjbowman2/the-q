@@ -41,7 +41,6 @@
 						games = [...(games ?? []), newGame];
 					}
 					if (payload.eventType === 'UPDATE') {
-						console.log('UPDATE', payload);
 						let updatedGame = payload.new as Game;
 						games = games?.map((game) => (game.id === updatedGame.id ? updatedGame : game)) ?? [];
 					}

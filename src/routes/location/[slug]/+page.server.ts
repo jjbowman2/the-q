@@ -13,17 +13,8 @@ export const actions = {
 			.filter(Boolean)
 			.map(String);
 
-		const { data: location } = await locals.supabase
-			.from('locations')
-			.select('*')
-			.eq('id', slug)
-			.single();
-
 		const created_by_anon = data.get('created_by_anon')?.toString() ?? null;
 
-		if (!location) {
-			return fail(404, { error: 'Location was not found, please try again.' });
-		}
 		if (players.length == 0) {
 			return fail(400, { error: 'Please enter at least one player.' });
 		}
@@ -35,13 +26,14 @@ export const actions = {
 			.from('games')
 			.insert({
 				game_size: isFourPlayers ? 4 : 2,
-				location: location.id,
+				location: slug,
 				players,
 				created_by: session?.user?.id,
 				created_by_anon
 			})
 			.select()
 			.single();
+
 		if (error) {
 			return fail(500, { data: 'Something went wrong, please try again.' });
 		}
@@ -51,20 +43,8 @@ export const actions = {
 			game
 		};
 	},
-	deleteGame: async ({ request, params, locals }: RequestEvent) => {
-		const { slug } = params;
+	deleteGame: async ({ request, locals }: RequestEvent) => {
 		const data = await request.formData();
-
-		const { data: location } = await locals.supabase
-			.from('locations')
-			.select('*')
-			.eq('id', slug)
-			.single();
-
-		if (!location) {
-			return fail(404, { error: 'Location was not found, please try again.' });
-		}
-
 		const { error } = await locals.supabase
 			.from('games')
 			.delete()
@@ -83,32 +63,11 @@ export const actions = {
 		const { slug } = params;
 		const data = await request.formData();
 
-		const { data: location } = await locals.supabase
-			.from('locations')
-			.select('*')
-			.eq('id', slug)
-			.single();
-
-		if (!location) {
-			return fail(404, { error: 'Location was not found, please try again.' });
-		}
-
-		// find the game with created at larger than the current game
-		const { data: game } = await locals.supabase
-			.from('games')
-			.select('*')
-			.eq('id', data.get('game-id'))
-			.single();
-
-		if (!game) {
-			return fail(404, { error: 'Game was not found, please try again.' });
-		}
-
 		const { data: nextGame } = await locals.supabase
 			.from('games')
 			.select('*')
-			.eq('location', location.id)
-			.gt('created_at', game.created_at)
+			.eq('location', slug)
+			.gt('created_at', data.get('created-at'))
 			.order('created_at', { ascending: true })
 			.single();
 
@@ -119,6 +78,50 @@ export const actions = {
 			.from('games')
 			.update({
 				created_at: updatedDate
+			})
+			.eq('id', data.get('game-id'))
+			.single();
+
+		if (error) {
+			return fail(500, { data: 'Something went wrong, please try again.' });
+		}
+
+		return {
+			success: true
+		};
+	},
+	joinGame: async ({ request, locals }: RequestEvent) => {
+		const data = await request.formData();
+
+		const { data: game } = await locals.supabase
+			.from('games')
+			.select('*')
+			.eq('id', data.get('game-id'))
+			.single();
+
+		if (!game) {
+			return fail(404, { error: 'Game was not found, please try again.' });
+		}
+
+		const { data: sessionHolder } = await locals.supabase.auth.getSession();
+		const user = sessionHolder?.session?.user;
+		const newPlayer =
+			data.get('player-name')?.toString() ??
+			user?.user_metadata?.name ??
+			user?.user_metadata?.full_name;
+
+		if (!newPlayer) {
+			return fail(400, { error: 'Please enter a name.' });
+		}
+
+		if (game.players.length >= game.game_size) {
+			return fail(400, { error: 'Game is full, please try again.' });
+		}
+
+		const { error } = await locals.supabase
+			.from('games')
+			.update({
+				players: [...game.players, newPlayer]
 			})
 			.eq('id', data.get('game-id'))
 			.single();

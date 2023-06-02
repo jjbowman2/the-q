@@ -1,12 +1,12 @@
 <script lang="ts">
 	const COLORS = ['#FB7185', '#93C5FD', '#A78BFA', '#34D399'];
 	import type { Database } from '../../types/supabase';
-	import { Pencil } from 'lucide-svelte';
 	import Accordion from './Accordion/Accordion.svelte';
 	import AccordionContent from './Accordion/AccordionContent.svelte';
 	import AccordionHeader from './Accordion/AccordionHeader.svelte';
 	import Paddle from './Paddle.svelte';
 	import { enhance } from '$app/forms';
+	import EditableText from './EditableText.svelte';
 	type Game = Database['public']['Tables']['games']['Row'];
 	export let game: Game;
 	export let index: number;
@@ -31,11 +31,8 @@
 				{#each game.players as player}
 					<p class="text-gray-600">{player}</p>
 				{/each}
-				{#each Array(game.game_size - game.players.length) as _}
-					<button type="button" class="flex gap-2 items-center group">
-						<p class="text-gray-400 group-hover:text-gray-700 italic">Open</p>
-						<Pencil class="text-gray-400 w-4 h-4 group-hover:text-gray-700" />
-					</button>
+				{#each Array(game.game_size - game.players.length) as _, i (i + game.players.length)}
+					<EditableText gameId={game.id} label="Open" />
 				{/each}
 			</div>
 			<div class="flex flex-col gap-3">
@@ -51,6 +48,7 @@
 					> -->
 					<form method="post" action="?/delayGame" use:enhance class="text-right">
 						<input type="hidden" name="game-id" value={game.id} />
+						<input type="hidden" name="created-at" value={game.created_at} />
 						<button class="font-semibold text-gray-600 active:scale-95 hover:text-gray-700"
 							>Not Ready</button
 						>
