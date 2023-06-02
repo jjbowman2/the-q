@@ -6,6 +6,7 @@
 	import AccordionContent from './Accordion/AccordionContent.svelte';
 	import AccordionHeader from './Accordion/AccordionHeader.svelte';
 	import Paddle from './Paddle.svelte';
+	import { enhance } from '$app/forms';
 	type Game = Database['public']['Tables']['games']['Row'];
 	export let game: Game;
 	export let index: number;
@@ -39,23 +40,31 @@
 			</div>
 			<div class="flex flex-col gap-3">
 				{#if isCurrentUsersGame}
-					<button
-						class="font-semibold text-emerald-600 active:scale-95 hover:text-emerald-700 text-right"
-						>Start Game</button
-					>
-					<button class="font-semibold text-gray-600 active:scale-95 hover:text-gray-700 text-right"
+					<form method="post" action="?/deleteGame" use:enhance class="text-right">
+						<input type="hidden" name="game-id" value={game.id} />
+						<button class="font-semibold text-emerald-600 active:scale-95 hover:text-emerald-700"
+							>Start Game</button
+						>
+					</form>
+					<!-- <button class="font-semibold text-gray-600 active:scale-95 hover:text-gray-700 text-right"
 						>Manage Players</button
-					>
-					<button class="font-semibold text-gray-600 active:scale-95 hover:text-gray-700 text-right"
-						>Not Ready</button
-					>
-					<button class="font-semibold text-red-600 active:scale-95 hover:text-red-700 text-right"
-						>Leave Queue</button
-					>
-				{:else}
+					> -->
+					<form method="post" action="?/delayGame" use:enhance class="text-right">
+						<input type="hidden" name="game-id" value={game.id} />
+						<button class="font-semibold text-gray-600 active:scale-95 hover:text-gray-700"
+							>Not Ready</button
+						>
+					</form>
+					<form method="post" action="?/deleteGame" use:enhance class="text-right">
+						<input type="hidden" name="game-id" value={game.id} />
+						<button class="font-semibold text-red-600 active:scale-95 hover:text-red-700"
+							>Leave Queue</button
+						>
+					</form>
+					<!-- {:else}
 					<button class="font-semibold text-red-600 active:scale-95 hover:text-red-700 text-right"
 						>Report</button
-					>
+					> -->
 				{/if}
 			</div>
 		</div>

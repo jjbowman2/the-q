@@ -23,7 +23,7 @@
 
 	let playerNames = [playerName, '', '', ''];
 	let supabaseSubscription: RealtimeChannel;
-	$: console.log($anonymousAuthToken);
+	$: sortedGames = games?.sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at));
 	onMount(() => {
 		supabaseSubscription = supabase
 			.channel('schema-db-changes')
@@ -41,6 +41,7 @@
 						games = [...(games ?? []), newGame];
 					}
 					if (payload.eventType === 'UPDATE') {
+						console.log('UPDATE', payload);
 						let updatedGame = payload.new as Game;
 						games = games?.map((game) => (game.id === updatedGame.id ? updatedGame : game)) ?? [];
 					}
@@ -67,7 +68,7 @@
 		<div>
 			<h1 class="text-2xl text-gray-700 mb-4">{location_name}</h1>
 			<p class="text-gray-600 text-sm">
-				{games?.length} game{games?.length != 1 ? 's' : ''} waiting...
+				{sortedGames?.length} game{sortedGames?.length != 1 ? 's' : ''} waiting...
 			</p>
 		</div>
 		<button
@@ -78,7 +79,7 @@
 	</div>
 	<div class="w-screen bg-slate-100 flex-grow">
 		<div class="max-w-lg mx-auto">
-			{#if !games || games?.length == 0}
+			{#if !sortedGames || sortedGames?.length == 0}
 				<div class="bg-white rounded-lg shadow p-4 m-4">
 					<h2 class="text-xl text-gray-700 mb-4">The queue is currently empty!</h2>
 					<p class="text-gray-600 text-sm">
@@ -87,7 +88,7 @@
 				</div>
 			{:else}
 				<div class="bg-white rounded-lg shadow m-4">
-					{#each games as game, index}
+					{#each sortedGames as game, index (game.id)}
 						<!-- If not the first one add a divider -->
 						{#if index > 0}
 							<div class="border-t border-gray-200" />
