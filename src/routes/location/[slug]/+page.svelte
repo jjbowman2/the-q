@@ -14,22 +14,22 @@
 		user,
 		supabase
 	} = data;
-	// let abortController = new AbortController();
 
+	let abortController: AbortController;
 	async function refreshGames() {
-		console.log('refreshing games');
-		// abortController.abort();
+		if (abortController) {
+			abortController.abort();
+		}
+		abortController = new AbortController();
 		const { data, error } = await supabase
 			.from('games')
 			.select('*, players(*)')
 			.eq('location', location_id)
-			.order('created_at', { ascending: true });
-		// .abortSignal(abortController.signal);
+			.order('created_at', { ascending: true })
+			.abortSignal(abortController.signal);
 		if (error) {
-			console.error(error);
 			return;
 		}
-		console.log(data);
 		games = data;
 	}
 
