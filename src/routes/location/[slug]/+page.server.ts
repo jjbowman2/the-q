@@ -140,7 +140,7 @@ export const actions = {
 			return fail(404, { error: 'Game was not found, please try again.' });
 		}
 
-		if (game?.players?.length || 0 >= game.game_size) {
+		if ((game?.players?.length ?? 0) >= game.game_size) {
 			return fail(400, { error: 'Game is full, please try again.' });
 		}
 

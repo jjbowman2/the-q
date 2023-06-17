@@ -23,6 +23,8 @@
 	// assign a random color to each game
 	let fill = COLORS[Math.floor(Math.random() * COLORS.length)];
 	$: playerCount = game?.players?.length ?? 0;
+	$: sortedPlayers =
+		game?.players?.sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at)) ?? [];
 </script>
 
 <Accordion>
@@ -38,7 +40,7 @@
 	<AccordionContent>
 		<div class="flex justify-between p-4">
 			<div class="flex flex-col gap-1">
-				{#each game?.players || [] as player (player.id)}
+				{#each sortedPlayers as player (player.id)}
 					{#if playerWasAddedByUser(player)}
 						<EditableText gameId={game.id} playerId={player.id} label={player.player_name} />
 					{:else}
