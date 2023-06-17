@@ -2,7 +2,7 @@
 
 TheQ is a pickleball queue application developed exclusively for players in the Phoenix area. Built with SvelteKit, Supabase, and TailwindCSS, TheQ offers an intuitive interface to organize and manage your games. Currently, the project is in its beta phase, and while most features are fully functional, users may experience a few bugs related to race conditions.
 
-![TheQ app](https://your_image_link_here.jpg)
+![q](https://github.com/jjbowman2/the-q/assets/22969728/04a0d2cf-a6ec-4408-970a-a9a46ffe2ed9)
 
 ## Planned Features
 
