@@ -39,14 +39,10 @@ We're working hard to bring you the following features. They are currently a wor
 
 ## Contributing
 
-We welcome any contributions that can help us improve TheQ! Please feel free to fork the repository and create a pull request with your changes.
+We welcome any contributions that can help us improve The Q! Please feel free to fork the repository and create a pull request with your changes.
 
 Before submitting your changes, ensure to test them thoroughly. Changes that break existing functionality or introduce new bugs will not be accepted.
 
 ## Bug Reporting
 
 If you encounter any bugs or issues while using The Q, please open an issue on GitHub. When reporting a bug, try to include as much detail as possible, such as the actions you were taking when the bug occurred, any error messages, and the device and browser you were using.
-
-## License
-
-TheQ is open-source software licensed under the MIT license.
