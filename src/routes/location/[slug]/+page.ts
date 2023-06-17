@@ -13,6 +13,7 @@ export const load: PageLoad = async ({ params, parent }) => {
 	const { data: games, status } = await supabase.from('games')
 		.select('*, players(*)')
 		.eq('location', params.slug);
+	
 	if (status !== 200) {
 		throw error(500, {
 			message: 'Something went wrong'

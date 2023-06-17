@@ -37,18 +37,25 @@ export const actions = {
 		if (error) {
 			return fail(500, { data: 'Something went wrong, please try again.' });
 		}
-		players.forEach(async (player) => {
-			await locals.supabase.from('players').insert({
+		const { error: playerError, data: playerResult } = await locals.supabase
+			.from('players')
+			.insert(players.map((player) => ({
 				game_id: game.id,
 				player_name: player,
 				created_by: session?.user?.id,
 				created_by_anon
-			});
-		});
+			})));
+		
+		if (playerError) {
+			return fail(500, { data: 'Something went wrong, please try again.' });
+		}
 
 		return {
 			success: true,
-			game
+			game: {
+				...game,
+				players: playerResult
+			}
 		};
 	},
 	deleteGame: async ({ request, locals }: RequestEvent) => {
@@ -70,13 +77,18 @@ export const actions = {
 	delayGame: async ({ request, params, locals }: RequestEvent) => {
 		const { slug } = params;
 		const data = await request.formData();
+		const created_at = data.get('created-at')?.toString() ?? null; 
+		if (!created_at) {
+			return fail(400, { error: 'Please enter a valid date.' });
+		}
 
 		const { data: nextGame } = await locals.supabase
 			.from('games')
 			.select('*')
 			.eq('location', slug)
-			.gt('created_at', data.get('created-at'))
+			.gt('created_at', created_at)
 			.order('created_at', { ascending: true })
+			.range(0, 0)
 			.single();
 
 		const nextTime = Date.parse(nextGame?.created_at ?? new Date().toISOString()) + 1;
@@ -140,7 +152,12 @@ export const actions = {
 			return fail(404, { error: 'Game was not found, please try again.' });
 		}
 
-		if ((game?.players?.length ?? 0) >= game.game_size) {
+		let playerCount = 1;
+		if (Array.isArray(game.players)) playerCount = game.players.length;
+		
+		const gameSize = game.game_size ?? 4;
+
+		if (playerCount >= gameSize) {
 			return fail(400, { error: 'Game is full, please try again.' });
 		}
 
@@ -152,6 +169,48 @@ export const actions = {
 				created_by: user?.id,
 				created_by_anon
 			})
+
+		if (error) {
+			return fail(500, { data: 'Something went wrong, please try again.' });
+		}
+
+		return {
+			success: true
+		};
+	},
+	leaveGame: async ({ request, locals }: RequestEvent) => {
+		const data = await request.formData();
+		const playerId = data.get('player-id')?.toString() ?? null;
+		const { error } = await locals.supabase
+			.from('players')
+			.delete()
+			.eq('id', playerId)
+			.single();
+
+		if (error) {
+			return fail(500, { data: 'Something went wrong, please try again.' });
+		}
+
+		return {
+			success: true
+		};
+	},
+	renamePlayer: async ({ request, locals }: RequestEvent) => {
+		const data = await request.formData();
+		const playerId = data.get('player-id')?.toString() ?? null;
+		const newPlayer = data.get('player-name')?.toString() ?? null;
+
+		if (!newPlayer) {
+			return fail(400, { error: 'Please enter a name.' });
+		}
+
+		const { error } = await locals.supabase
+			.from('players')
+			.update({
+				player_name: newPlayer
+			})
+			.eq('id', playerId)
+			.single();
 
 		if (error) {
 			return fail(500, { data: 'Something went wrong, please try again.' });

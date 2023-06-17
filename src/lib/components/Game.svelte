@@ -11,7 +11,8 @@
 	import type { User } from '@supabase/supabase-js';
 	type Game = Database['public']['Tables']['games']['Row'];
 	type Player = Database['public']['Tables']['players']['Row'];
-	export let game: Game;
+	type GameWithPlayers = Game & { players: Player | Player[] | null };
+	export let game: GameWithPlayers;
 	export let index: number;
 	export let user: User | undefined;
 	$: isCurrentUsersGame =
@@ -20,11 +21,28 @@
 	const playerWasAddedByUser = (player: Player) =>
 		(player.created_by !== null && player.created_by === user?.id) ||
 		(player.created_by == null && player.created_by_anon === $anonymousAuthToken);
+	function hashUUID(uuid: string): number {
+		let hash = 0;
+		for (let i = 0; i < uuid.length; i++) {
+			const character = uuid.charCodeAt(i);
+			hash = (hash << 5) - hash + character;
+			hash |= 0; // Convert to 32bit integer
+		}
+		return hash;
+	}
+
+	function uuidToIndex(uuid: string, arrayLength: number): number {
+		const hash = hashUUID(uuid);
+		return Math.abs(hash) % arrayLength;
+	}
+
 	// assign a random color to each game
-	let fill = COLORS[Math.floor(Math.random() * COLORS.length)];
-	$: playerCount = game?.players?.length ?? 0;
+	let fill = COLORS[uuidToIndex(game.id, COLORS.length)];
+	$: gameSize = game.game_size ?? 4;
+	$: players = Array.isArray(game?.players) ? game.players : game?.players ? [game.players] : [];
+	$: playerCount = players.length;
 	$: sortedPlayers =
-		game?.players?.sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at)) ?? [];
+		players.sort((a, b) => Date.parse(a.created_at ?? '0') - Date.parse(b.created_at ?? '0')) ?? [];
 </script>
 
 <Accordion>
@@ -47,7 +65,7 @@
 						<p class="text-gray-600">{player.player_name}</p>
 					{/if}
 				{/each}
-				{#each Array(game.game_size - playerCount) as _, i (i + playerCount)}
+				{#each Array(gameSize - playerCount) as _, i (i + playerCount)}
 					<EditableText gameId={game.id} label="Open" />
 				{/each}
 			</div>

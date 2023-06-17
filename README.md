@@ -1,38 +1,56 @@
-# create-svelte
+# TheQ
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+TheQ is a pickleball queue application developed exclusively for players in the Phoenix area. Built with SvelteKit, Supabase, and TailwindCSS, TheQ offers an intuitive interface to organize and manage your games. Currently, the project is in its beta phase, and while most features are fully functional, users may experience a few bugs related to race conditions.
 
-## Creating a project
+![TheQ app](https://your_image_link_here.jpg)
 
-If you're seeing this, you've probably already done this step. Congrats!
+## Planned Features
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+We're working hard to bring you the following features. They are currently a work in progress:
 
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+- [ ] **Pickleball Queue Management:** We're developing an intuitive system to manage your pickleball queue with ease. Quick actions such as "Start Game" and "Quick Join" are in the works to allow for efficient game management.
 
-## Developing
+- [ ] **Reporting Mechanism:** To maintain a healthy and fair community, we're setting up a reporting action feature. This feature will allow users to report if other games are not taking the court in a timely manner, or if certain players are abusing the system. Offending parties can then be removed to ensure a positive experience for all users.
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+- [ ] **About Page:** An "About" page is being prepared to provide users with more information about our application and the team behind it.
 
-```bash
-npm run dev
+- [ ] **FAQ Page:** We're putting together an FAQ section to answer common questions and help users get the most out of our application.
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+- [ ] **Contact Page:** We're designing a "Contact" page to make it easier for users to get in touch with us for support or feedback.
 
-## Building
+## Known Issues
 
-To create a production version of your app:
+The application is currently experiencing a few bugs associated with race conditions. We're working hard to resolve these issues as soon as possible.
 
-```bash
-npm run build
-```
+## Getting Started
 
-You can preview the production build with `npm run preview`.
+1. Clone the repository:
+    ```
+    git clone https://github.com/jjbowman2/the-q.git
+    ```
+2. Change into the project directory:
+    ```
+    cd the-q
+    ```
+3. Install the dependencies:
+    ```
+    pnpm install
+    ```
+4. Start the server:
+    ```
+    pnpm run dev
+    ```
 
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+## Contributing
+
+We welcome any contributions that can help us improve TheQ! Please feel free to fork the repository and create a pull request with your changes.
+
+Before submitting your changes, ensure to test them thoroughly. Changes that break existing functionality or introduce new bugs will not be accepted.
+
+## Bug Reporting
+
+If you encounter any bugs or issues while using TheQ, please open an issue on GitHub. When reporting a bug, try to include as much detail as possible, such as the actions you were taking when the bug occurred, any error messages, and the device and browser you were using.
+
+## License
+
+TheQ is open-source software licensed under the MIT license.

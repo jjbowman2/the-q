@@ -1,10 +1,10 @@
 <footer class="container px-4 max-w-5xl mx-auto text-gray-500 pb-8">
-	<hr />
-	<nav class="flex mt-8">
+	<hr class="mb-8" />
+	<!-- <nav class="flex mt-8">
 		<a class="hover:underline flex-1 text-center" href="/faqs">FAQs</a>
 		<a class="hover:underline flex-1 text-center" href="/about">About</a>
 		<a class="hover:underline flex-1 text-center" href="/contact">Contact</a>
-	</nav>
+	</nav> -->
 	<a href="https://github.com/jjbowman2/the-q">
 		<svg viewBox="0 0 24 24" aria-hidden="true" class="w-8 h-8 mx-auto mt-8 fill-gray-500">
 			<path

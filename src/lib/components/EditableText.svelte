@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { clickOutside } from '$lib/utils/clickOutside';
-	import { Pencil, Save } from 'lucide-svelte';
+	import { Pencil, Save, Trash } from 'lucide-svelte';
 	import { anonymousAuthToken } from '$lib/stores/anonymousAuthStore';
 	export let label: string;
 	export let gameId: string;
@@ -13,7 +13,7 @@
 {#if editing}
 	<form
 		method="post"
-		action="?/joinGame"
+		action={playerId ? '?/renamePlayer' : '?/joinGame'}
 		use:enhance={() =>
 			async ({ result, update }) => {
 				if (result.type == 'success') {
@@ -49,8 +49,18 @@
 		</button>
 	</form>
 {:else}
-	<button type="button" class="flex gap-2 items-center group" on:click={() => (editing = true)}>
-		<p class="text-gray-400 group-hover:text-gray-700 italic">{label}</p>
-		<Pencil class="text-gray-400 w-4 h-4 group-hover:text-gray-700" />
-	</button>
+	<div class="flex gap-3">
+		<button type="button" class="flex gap-2 items-center group" on:click={() => (editing = true)}>
+			<p class="text-gray-400 group-hover:text-gray-700 italic">{label}</p>
+			<Pencil class="text-gray-400 h-4 group-hover:text-gray-700" />
+		</button>
+		{#if playerId}
+			<form method="post" action="?/leaveGame" use:enhance class="flex items-center">
+				<input hidden name="player-id" value={playerId} />
+				<button type="submit" class="group">
+					<Trash class="h-4 text-gray-400 group-hover:text-gray-600 group-active:scale-95" />
+				</button>
+			</form>
+		{/if}
+	</div>
 {/if}

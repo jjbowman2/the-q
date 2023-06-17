@@ -9,6 +9,7 @@
 	import { anonymousAuthToken } from '$lib/stores/anonymousAuthStore';
 	type Game = Database['public']['Tables']['games']['Row'];
 	type Player = Database['public']['Tables']['players']['Row'];
+	type GameWithPlayers = Game & { players: Player[] };
 	export let form: ActionData;
 	export let data: PageData;
 	let {
@@ -54,7 +55,10 @@
 					}
 					if (payload.eventType === 'UPDATE') {
 						let updatedGame = payload.new as Game;
-						games = games?.map((game) => (game.id === updatedGame.id ? updatedGame : game)) ?? [];
+						games =
+							games?.map((game) =>
+								game.id === updatedGame.id ? Object.assign(game, updatedGame) : game
+							) ?? [];
 					}
 					if (payload.eventType === 'DELETE') {
 						let deletedGame = payload.old as Game;
@@ -75,6 +79,18 @@
 					filter: `game_id=in.(${games?.map((game) => game.id).join(',')})`
 				},
 				async (payload) => {
+					if (payload.eventType === 'DELETE') {
+						let deletedPlayerId = payload.old.id;
+						games =
+							games?.map((game) => {
+								game.players =
+									// @ts-ignore
+									game.players?.filter((player) => player.id !== deletedPlayerId) ?? [];
+								return game;
+							}) ?? [];
+						return;
+					}
+
 					// on any player change fetch the new game data
 					const playerChange = payload.new as Player;
 					const gameId = playerChange.game_id;
@@ -88,7 +104,9 @@
 						console.error(error);
 						return;
 					}
-					games = games?.map((game) => (game.id === gameId ? (updatedGame as Game) : game)) ?? [];
+					games =
+						games?.map((game) => (game.id === gameId ? (updatedGame as GameWithPlayers) : game)) ??
+						[];
 				}
 			)
 			.subscribe();
@@ -134,14 +152,6 @@
 						{#if index > 0}
 							<div class="border-t border-gray-200" />
 						{/if}
-						<!-- <form method="post" action="?/deleteGame" use:enhance>
-							<input type="hidden" name="game-id" value={game.id} />
-							<button
-								type="submit"
-								class="text-emerald-600 ml-auto block hover:text-emerald-700 active:scale-95"
-								>Start Game</button
-							>
-						</form> -->
 						<div class="px-6 py-8">
 							<Game {game} {index} {user} />
 						</div>
