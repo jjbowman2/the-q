@@ -8,6 +8,7 @@
 	import Game from '$lib/components/Game.svelte';
 	import { anonymousAuthToken } from '$lib/stores/anonymousAuthStore';
 	type Game = Database['public']['Tables']['games']['Row'];
+	type Player = Database['public']['Tables']['players']['Row'];
 	export let form: ActionData;
 	export let data: PageData;
 	let {
@@ -22,11 +23,12 @@
 	let fourPlayers = true;
 
 	let playerNames = [playerName, '', '', ''];
-	let supabaseSubscription: RealtimeChannel;
+	let gameSubscription: RealtimeChannel;
+	let playerSubscription: RealtimeChannel;
 	$: sortedGames = games?.sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at));
 	onMount(() => {
-		supabaseSubscription = supabase
-			.channel('schema-db-changes')
+		gameSubscription = supabase
+			.channel('gameChannel')
 			.on(
 				'postgres_changes',
 				{
@@ -35,10 +37,20 @@
 					table: 'games',
 					filter: `location=eq.${location_id}`
 				},
-				(payload) => {
+				async (payload) => {
 					if (payload.eventType === 'INSERT') {
-						let newGame = payload.new as Game;
-						games = [...(games ?? []), newGame];
+						// if a game is inserted, fetch the players (these may not be populated yet)
+						let newGame = payload.new as Omit<Game, 'players'>;
+						let { error, data: gameWithPlayers } = await supabase
+							.from('games')
+							.select('*, players(*)')
+							.eq('id', newGame.id)
+							.single();
+						if (error || !gameWithPlayers) {
+							console.error(error);
+							return;
+						}
+						games = [...(games ?? []), gameWithPlayers];
 					}
 					if (payload.eventType === 'UPDATE') {
 						let updatedGame = payload.new as Game;
@@ -51,10 +63,40 @@
 				}
 			)
 			.subscribe();
+
+		playerSubscription = supabase
+			.channel('playerChannel')
+			.on(
+				'postgres_changes',
+				{
+					event: '*',
+					schema: 'public',
+					table: 'players',
+					filter: `game_id=in.(${games?.map((game) => game.id).join(',')})`
+				},
+				async (payload) => {
+					// on any player change fetch the new game data
+					const playerChange = payload.new as Player;
+					const gameId = playerChange.game_id;
+					if (!gameId) return;
+					let { data: updatedGame, error } = await supabase
+						.from('games')
+						.select('*, players(*)')
+						.eq('id', gameId)
+						.single();
+					if (error || !updatedGame) {
+						console.error(error);
+						return;
+					}
+					games = games?.map((game) => (game.id === gameId ? (updatedGame as Game) : game)) ?? [];
+				}
+			)
+			.subscribe();
 	});
 
 	onDestroy(() => {
-		supabaseSubscription?.unsubscribe();
+		gameSubscription?.unsubscribe();
+		playerSubscription?.unsubscribe();
 	});
 </script>
 
@@ -101,12 +143,7 @@
 							>
 						</form> -->
 						<div class="px-6 py-8">
-							<Game
-								{game}
-								{index}
-								isCurrentUsersGame={(game.created_by !== null && game.created_by === user?.id) ||
-									(game.created_by == null && game.created_by_anon === $anonymousAuthToken)}
-							/>
+							<Game {game} {index} {user} />
 						</div>
 					{/each}
 				</div>

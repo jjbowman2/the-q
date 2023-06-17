@@ -7,12 +7,22 @@
 	import Paddle from './Paddle.svelte';
 	import { enhance } from '$app/forms';
 	import EditableText from './EditableText.svelte';
+	import { anonymousAuthToken } from '$lib/stores/anonymousAuthStore';
+	import type { User } from '@supabase/supabase-js';
 	type Game = Database['public']['Tables']['games']['Row'];
+	type Player = Database['public']['Tables']['players']['Row'];
 	export let game: Game;
 	export let index: number;
-	export let isCurrentUsersGame: boolean;
+	export let user: User | undefined;
+	$: isCurrentUsersGame =
+		(game.created_by !== null && game.created_by === user?.id) ||
+		(game.created_by == null && game.created_by_anon === $anonymousAuthToken);
+	const playerWasAddedByUser = (player: Player) =>
+		(player.created_by !== null && player.created_by === user?.id) ||
+		(player.created_by == null && player.created_by_anon === $anonymousAuthToken);
 	// assign a random color to each game
 	let fill = COLORS[Math.floor(Math.random() * COLORS.length)];
+	$: playerCount = game?.players?.length ?? 0;
 </script>
 
 <Accordion>
@@ -20,7 +30,7 @@
 		<div class="flex gap-2 items-center">
 			<Paddle {fill} number={index + 1} />
 			<p class="font-semibold">
-				{game.players.length} / {game.game_size} players {isCurrentUsersGame ? ' (You)' : ''}
+				{playerCount} / {game.game_size} players {isCurrentUsersGame ? ' (You)' : ''}
 			</p>
 		</div>
 		<!-- TODO: Quick Actions -->
@@ -28,10 +38,14 @@
 	<AccordionContent>
 		<div class="flex justify-between p-4">
 			<div class="flex flex-col gap-1">
-				{#each game.players as player}
-					<p class="text-gray-600">{player}</p>
+				{#each game?.players || [] as player (player.id)}
+					{#if playerWasAddedByUser(player)}
+						<EditableText gameId={game.id} playerId={player.id} label={player.player_name} />
+					{:else}
+						<p class="text-gray-600">{player.player_name}</p>
+					{/if}
 				{/each}
-				{#each Array(game.game_size - game.players.length) as _, i (i + game.players.length)}
+				{#each Array(game.game_size - playerCount) as _, i (i + playerCount)}
 					<EditableText gameId={game.id} label="Open" />
 				{/each}
 			</div>

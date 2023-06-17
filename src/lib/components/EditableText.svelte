@@ -2,8 +2,10 @@
 	import { enhance } from '$app/forms';
 	import { clickOutside } from '$lib/utils/clickOutside';
 	import { Pencil, Save } from 'lucide-svelte';
+	import { anonymousAuthToken } from '$lib/stores/anonymousAuthStore';
 	export let label: string;
 	export let gameId: string;
+	export let playerId: string | null = null;
 	let editing = false;
 	let value = '';
 </script>
@@ -12,7 +14,13 @@
 	<form
 		method="post"
 		action="?/joinGame"
-		use:enhance
+		use:enhance={() =>
+			async ({ result, update }) => {
+				if (result.type == 'success') {
+					editing = false;
+				}
+				await update();
+			}}
 		use:clickOutside
 		on:clickoutside={() => (editing = false)}
 		on:keydown={(e) => {
@@ -23,6 +31,9 @@
 		class="flex gap-2 items-center"
 	>
 		<input hidden name="game-id" value={gameId} />
+		<input hidden name="player-id" value={playerId} />
+		<input hidden name="created_by_anon" value={$anonymousAuthToken} />
+
 		<!-- svelte-ignore a11y-autofocus -->
 		<input
 			name="player-name"

@@ -9,7 +9,7 @@ export interface Database {
 					created_by: string | null;
 					created_by_anon: string | null;
 					id: string;
-					players: string[];
+					players: Database['public']['Tables']['players']['Row'][] | null;
 					location: string;
 					game_size: number;
 				};
@@ -18,7 +18,6 @@ export interface Database {
 					created_by?: string | null;
 					created_by_anon?: string | null;
 					id?: string;
-					players?: string[];
 					location: string;
 					game_size?: number;
 				};
@@ -27,9 +26,34 @@ export interface Database {
 					created_by?: string | null;
 					created_by_anon?: string | null;
 					id?: string;
-					players?: string[];
 					location?: string;
 					game_size?: number;
+				};
+			};
+			players: {
+				Row: {
+					created_at: string;
+					created_by: string | null;
+					created_by_anon: string | null;
+					id: string;
+                    game_id: string;
+					player_name: string;
+				};
+				Insert: {
+					created_at?: string;
+					created_by?: string | null;
+					created_by_anon?: string | null;
+					id?: string;
+                    game_id: string;
+					player_name: string;
+				};
+				Update: {
+					created_at?: string | null;
+					created_by?: string | null;
+					created_by_anon?: string | null;
+					id?: string;
+                    game_id?: string | null;
+					player_name?: string | null;
 				};
 			};
 			locations: {

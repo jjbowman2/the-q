@@ -27,16 +27,24 @@ export const actions = {
 			.insert({
 				game_size: isFourPlayers ? 4 : 2,
 				location: slug,
-				players,
+				// players,
 				created_by: session?.user?.id,
 				created_by_anon
 			})
 			.select()
 			.single();
-
+		
 		if (error) {
 			return fail(500, { data: 'Something went wrong, please try again.' });
 		}
+		players.forEach(async (player) => {
+			await locals.supabase.from('players').insert({
+				game_id: game.id,
+				player_name: player,
+				created_by: session?.user?.id,
+				created_by_anon
+			});
+		});
 
 		return {
 			success: true,
@@ -92,10 +100,39 @@ export const actions = {
 	},
 	joinGame: async ({ request, locals }: RequestEvent) => {
 		const data = await request.formData();
+		const playerId = data.get('player-id')?.toString() ?? null;
+		const { data: sessionHolder } = await locals.supabase.auth.getSession();
+		const user = sessionHolder?.session?.user;
+		const created_by_anon = data.get('created_by_anon')?.toString() ?? null;
+		const newPlayer =
+			data.get('player-name')?.toString() ?? user?.user_metadata?.name ?? user?.user_metadata?.full_name;
 
+		if (!newPlayer) {
+			return fail(400, { error: 'Please enter a name.' });
+		}
+
+		// if existing player id, rename and return
+		// TODO: refactor into modify player call
+		if (playerId) {
+			const { error } = await locals.supabase
+			.from('players')
+			.update({
+				player_name: newPlayer
+			})
+			.eq('id', playerId)
+			.single();
+			if (error) {
+				return fail(500, { data: 'Something went wrong, please try again.' });
+			}
+			return {
+				success: true
+			};
+		}
+		
+		// else check if game has capacity
 		const { data: game } = await locals.supabase
 			.from('games')
-			.select('*')
+			.select('*, players(*)')
 			.eq('id', data.get('game-id'))
 			.single();
 
@@ -103,28 +140,18 @@ export const actions = {
 			return fail(404, { error: 'Game was not found, please try again.' });
 		}
 
-		const { data: sessionHolder } = await locals.supabase.auth.getSession();
-		const user = sessionHolder?.session?.user;
-		const newPlayer =
-			data.get('player-name')?.toString() ??
-			user?.user_metadata?.name ??
-			user?.user_metadata?.full_name;
-
-		if (!newPlayer) {
-			return fail(400, { error: 'Please enter a name.' });
-		}
-
-		if (game.players.length >= game.game_size) {
+		if (game?.players?.length || 0 >= game.game_size) {
 			return fail(400, { error: 'Game is full, please try again.' });
 		}
 
 		const { error } = await locals.supabase
-			.from('games')
-			.update({
-				players: [...game.players, newPlayer]
+			.from('players')
+			.insert({
+				game_id: game.id,
+				player_name: newPlayer,
+				created_by: user?.id,
+				created_by_anon
 			})
-			.eq('id', data.get('game-id'))
-			.single();
 
 		if (error) {
 			return fail(500, { data: 'Something went wrong, please try again.' });
