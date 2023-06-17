@@ -1,6 +1,6 @@
 # The Q
 
-The Q is a pickleball queue application developed exclusively for players in the Phoenix area. Built with SvelteKit, Supabase, and TailwindCSS, The Q offers an intuitive interface to organize and manage your games. Currently, the project is in its beta phase, and while most features are fully functional, users may experience a few bugs related to race conditions.
+The Q is a pickleball queue application developed exclusively for players in the Phoenix area. Built with SvelteKit, Supabase, and TailwindCSS, The Q offers an intuitive interface to organize and manage your games. Currently, the project is in its beta phase, and while most features are fully functional, users may experience a few bugs.
 
 ![q](https://github.com/jjbowman2/the-q/assets/22969728/04a0d2cf-a6ec-4408-970a-a9a46ffe2ed9)
 
@@ -17,10 +17,6 @@ We're working hard to bring you the following features. They are currently a wor
 - [ ] **FAQ Page:** We're putting together an FAQ section to answer common questions and help users get the most out of our application.
 
 - [ ] **Contact Page:** We're designing a "Contact" page to make it easier for users to get in touch with us for support or feedback.
-
-## Known Issues
-
-The application is currently experiencing a few bugs associated with race conditions. We're working hard to resolve these issues as soon as possible.
 
 ## Getting Started
 
@@ -49,7 +45,7 @@ Before submitting your changes, ensure to test them thoroughly. Changes that bre
 
 ## Bug Reporting
 
-If you encounter any bugs or issues while using TheQ, please open an issue on GitHub. When reporting a bug, try to include as much detail as possible, such as the actions you were taking when the bug occurred, any error messages, and the device and browser you were using.
+If you encounter any bugs or issues while using The Q, please open an issue on GitHub. When reporting a bug, try to include as much detail as possible, such as the actions you were taking when the bug occurred, any error messages, and the device and browser you were using.
 
 ## License
 

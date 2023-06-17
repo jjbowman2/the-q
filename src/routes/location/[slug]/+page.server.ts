@@ -27,7 +27,6 @@ export const actions = {
 			.insert({
 				game_size: isFourPlayers ? 4 : 2,
 				location: slug,
-				// players,
 				created_by: session?.user?.id,
 				created_by_anon
 			})
@@ -43,7 +42,8 @@ export const actions = {
 				game_id: game.id,
 				player_name: player,
 				created_by: session?.user?.id,
-				created_by_anon
+				created_by_anon,
+				location: slug
 			})));
 		
 		if (playerError) {
@@ -124,7 +124,6 @@ export const actions = {
 		}
 
 		// if existing player id, rename and return
-		// TODO: refactor into modify player call
 		if (playerId) {
 			const { error } = await locals.supabase
 			.from('players')
@@ -167,7 +166,8 @@ export const actions = {
 				game_id: game.id,
 				player_name: newPlayer,
 				created_by: user?.id,
-				created_by_anon
+				created_by_anon,
+				location: game.location
 			})
 
 		if (error) {

@@ -3,13 +3,9 @@
 	import Dialog from '$lib/components/Dialog.svelte';
 	import type { RealtimeChannel } from '@supabase/supabase-js';
 	import { onDestroy, onMount } from 'svelte';
-	import type { Database } from '../../../types/supabase';
 	import type { ActionData, PageData } from './$types';
 	import Game from '$lib/components/Game.svelte';
 	import { anonymousAuthToken } from '$lib/stores/anonymousAuthStore';
-	type Game = Database['public']['Tables']['games']['Row'];
-	type Player = Database['public']['Tables']['players']['Row'];
-	type GameWithPlayers = Game & { players: Player[] };
 	export let form: ActionData;
 	export let data: PageData;
 	let {
@@ -18,12 +14,30 @@
 		user,
 		supabase
 	} = data;
+	// let abortController = new AbortController();
 
-	let playerName = user?.user_metadata?.name ?? user?.user_metadata?.full_name ?? '';
+	async function refreshGames() {
+		console.log('refreshing games');
+		// abortController.abort();
+		const { data, error } = await supabase
+			.from('games')
+			.select('*, players(*)')
+			.eq('location', location_id)
+			.order('created_at', { ascending: true });
+		// .abortSignal(abortController.signal);
+		if (error) {
+			console.error(error);
+			return;
+		}
+		console.log(data);
+		games = data;
+	}
+
+	$: playerName = user?.user_metadata?.name ?? user?.user_metadata?.full_name ?? '';
 	let joinDialogOpen = false;
 	let fourPlayers = true;
 
-	let playerNames = [playerName, '', '', ''];
+	$: playerNames = [playerName, '', '', ''];
 	let gameSubscription: RealtimeChannel;
 	let playerSubscription: RealtimeChannel;
 	$: sortedGames = games?.sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at));
@@ -38,33 +52,7 @@
 					table: 'games',
 					filter: `location=eq.${location_id}`
 				},
-				async (payload) => {
-					if (payload.eventType === 'INSERT') {
-						// if a game is inserted, fetch the players (these may not be populated yet)
-						let newGame = payload.new as Omit<Game, 'players'>;
-						let { error, data: gameWithPlayers } = await supabase
-							.from('games')
-							.select('*, players(*)')
-							.eq('id', newGame.id)
-							.single();
-						if (error || !gameWithPlayers) {
-							console.error(error);
-							return;
-						}
-						games = [...(games ?? []), gameWithPlayers];
-					}
-					if (payload.eventType === 'UPDATE') {
-						let updatedGame = payload.new as Game;
-						games =
-							games?.map((game) =>
-								game.id === updatedGame.id ? Object.assign(game, updatedGame) : game
-							) ?? [];
-					}
-					if (payload.eventType === 'DELETE') {
-						let deletedGame = payload.old as Game;
-						games = games?.filter((game) => game.id !== deletedGame.id) ?? [];
-					}
-				}
+				refreshGames
 			)
 			.subscribe();
 
@@ -76,38 +64,9 @@
 					event: '*',
 					schema: 'public',
 					table: 'players',
-					filter: `game_id=in.(${games?.map((game) => game.id).join(',')})`
+					filter: `location=eq.${location_id}`
 				},
-				async (payload) => {
-					if (payload.eventType === 'DELETE') {
-						let deletedPlayerId = payload.old.id;
-						games =
-							games?.map((game) => {
-								game.players =
-									// @ts-ignore
-									game.players?.filter((player) => player.id !== deletedPlayerId) ?? [];
-								return game;
-							}) ?? [];
-						return;
-					}
-
-					// on any player change fetch the new game data
-					const playerChange = payload.new as Player;
-					const gameId = playerChange.game_id;
-					if (!gameId) return;
-					let { data: updatedGame, error } = await supabase
-						.from('games')
-						.select('*, players(*)')
-						.eq('id', gameId)
-						.single();
-					if (error || !updatedGame) {
-						console.error(error);
-						return;
-					}
-					games =
-						games?.map((game) => (game.id === gameId ? (updatedGame as GameWithPlayers) : game)) ??
-						[];
-				}
+				refreshGames
 			)
 			.subscribe();
 	});
